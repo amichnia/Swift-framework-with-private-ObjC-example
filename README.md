@@ -321,7 +321,9 @@ Let's sum it up:
 
 The sample project is available here: ...
 
-> **Note:** In the example I used factory that allows you to register a type, and then I used init on that type. You can play with this approach a bit. If you don't like to add inits to 
+> **Note:** In the example I used factory that allows you to register a type, and then I used init on that type. You can play with this approach a bit. If you don't like to add inits to protocols, you can try to use closure/block as a factory: `static `
+>
+>
 
 ### Thank you for reading
 

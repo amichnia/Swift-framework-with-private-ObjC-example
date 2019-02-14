@@ -7,14 +7,20 @@
 //
 
 import UIKit
+import MyFramework
 
 class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+
+         // Should print info to console, showing that objc member was triggered, created and used
+        let publicClass = MyPublicClass()
+        publicClass.doSomething()
+
+        // TODO: Uncomment this to see that private class is not accessible
+//        let privateClass = MyPrivateClass()
+//        privateClass.doSomethingInternal(withSecretAttribute: 314)
     }
-
-
 }
 

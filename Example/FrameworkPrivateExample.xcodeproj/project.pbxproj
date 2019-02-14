@@ -12,7 +12,39 @@
 		C805AFCE22132D830052B366 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C805AFCC22132D830052B366 /* Main.storyboard */; };
 		C805AFD022132D850052B366 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C805AFCF22132D850052B366 /* Assets.xcassets */; };
 		C805AFD322132D850052B366 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C805AFD122132D850052B366 /* LaunchScreen.storyboard */; };
+		C883347D2215B42700BB61F5 /* MyFramework.h in Headers */ = {isa = PBXBuildFile; fileRef = C883347B2215B42700BB61F5 /* MyFramework.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		C88334802215B42700BB61F5 /* MyFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C88334792215B42600BB61F5 /* MyFramework.framework */; };
+		C88334812215B42700BB61F5 /* MyFramework.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = C88334792215B42600BB61F5 /* MyFramework.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		C88334892215B44600BB61F5 /* MyPublicClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = C88334882215B44600BB61F5 /* MyPublicClass.swift */; };
+		C883348C2215B45B00BB61F5 /* MyPrivateClass.h in Headers */ = {isa = PBXBuildFile; fileRef = C883348A2215B45B00BB61F5 /* MyPrivateClass.h */; };
+		C883348D2215B45B00BB61F5 /* MyPrivateClass.m in Sources */ = {isa = PBXBuildFile; fileRef = C883348B2215B45B00BB61F5 /* MyPrivateClass.m */; };
+		C883348F2215B53D00BB61F5 /* ObjectiveCToSwift.swift in Sources */ = {isa = PBXBuildFile; fileRef = C883348E2215B53D00BB61F5 /* ObjectiveCToSwift.swift */; };
+		C88334912215B5E500BB61F5 /* SwiftToObjectiveC.h in Headers */ = {isa = PBXBuildFile; fileRef = C88334902215B5E100BB61F5 /* SwiftToObjectiveC.h */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		C883347E2215B42700BB61F5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C805AFBD22132D830052B366 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C88334782215B42600BB61F5;
+			remoteInfo = MyFramework;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		C88334852215B42700BB61F5 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				C88334812215B42700BB61F5 /* MyFramework.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		C805AFC522132D830052B366 /* FrameworkPrivateExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FrameworkPrivateExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -22,10 +54,26 @@
 		C805AFCF22132D850052B366 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C805AFD222132D850052B366 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		C805AFD422132D850052B366 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C88334792215B42600BB61F5 /* MyFramework.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MyFramework.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		C883347B2215B42700BB61F5 /* MyFramework.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MyFramework.h; sourceTree = "<group>"; };
+		C883347C2215B42700BB61F5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C88334882215B44600BB61F5 /* MyPublicClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPublicClass.swift; sourceTree = "<group>"; };
+		C883348A2215B45B00BB61F5 /* MyPrivateClass.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MyPrivateClass.h; sourceTree = "<group>"; };
+		C883348B2215B45B00BB61F5 /* MyPrivateClass.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MyPrivateClass.m; sourceTree = "<group>"; };
+		C883348E2215B53D00BB61F5 /* ObjectiveCToSwift.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectiveCToSwift.swift; sourceTree = "<group>"; };
+		C88334902215B5E100BB61F5 /* SwiftToObjectiveC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SwiftToObjectiveC.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		C805AFC222132D830052B366 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C88334802215B42700BB61F5 /* MyFramework.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C88334762215B42600BB61F5 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -39,6 +87,7 @@
 			isa = PBXGroup;
 			children = (
 				C805AFC722132D830052B366 /* FrameworkPrivateExample */,
+				C883347A2215B42700BB61F5 /* MyFramework */,
 				C805AFC622132D830052B366 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -47,6 +96,7 @@
 			isa = PBXGroup;
 			children = (
 				C805AFC522132D830052B366 /* FrameworkPrivateExample.app */,
+				C88334792215B42600BB61F5 /* MyFramework.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -64,7 +114,50 @@
 			path = FrameworkPrivateExample;
 			sourceTree = "<group>";
 		};
+		C883347A2215B42700BB61F5 /* MyFramework */ = {
+			isa = PBXGroup;
+			children = (
+				C88334862215B42E00BB61F5 /* Public */,
+				C88334872215B43600BB61F5 /* Internal */,
+				C883347B2215B42700BB61F5 /* MyFramework.h */,
+				C883347C2215B42700BB61F5 /* Info.plist */,
+			);
+			path = MyFramework;
+			sourceTree = "<group>";
+		};
+		C88334862215B42E00BB61F5 /* Public */ = {
+			isa = PBXGroup;
+			children = (
+				C88334882215B44600BB61F5 /* MyPublicClass.swift */,
+			);
+			path = Public;
+			sourceTree = "<group>";
+		};
+		C88334872215B43600BB61F5 /* Internal */ = {
+			isa = PBXGroup;
+			children = (
+				C883348E2215B53D00BB61F5 /* ObjectiveCToSwift.swift */,
+				C88334902215B5E100BB61F5 /* SwiftToObjectiveC.h */,
+				C883348A2215B45B00BB61F5 /* MyPrivateClass.h */,
+				C883348B2215B45B00BB61F5 /* MyPrivateClass.m */,
+			);
+			path = Internal;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		C88334742215B42600BB61F5 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C88334912215B5E500BB61F5 /* SwiftToObjectiveC.h in Headers */,
+				C883347D2215B42700BB61F5 /* MyFramework.h in Headers */,
+				C883348C2215B45B00BB61F5 /* MyPrivateClass.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
 		C805AFC422132D830052B366 /* FrameworkPrivateExample */ = {
@@ -74,15 +167,35 @@
 				C805AFC122132D830052B366 /* Sources */,
 				C805AFC222132D830052B366 /* Frameworks */,
 				C805AFC322132D830052B366 /* Resources */,
+				C88334852215B42700BB61F5 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				C883347F2215B42700BB61F5 /* PBXTargetDependency */,
 			);
 			name = FrameworkPrivateExample;
 			productName = FrameworkPrivateExample;
 			productReference = C805AFC522132D830052B366 /* FrameworkPrivateExample.app */;
 			productType = "com.apple.product-type.application";
+		};
+		C88334782215B42600BB61F5 /* MyFramework */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C88334842215B42700BB61F5 /* Build configuration list for PBXNativeTarget "MyFramework" */;
+			buildPhases = (
+				C88334742215B42600BB61F5 /* Headers */,
+				C88334752215B42600BB61F5 /* Sources */,
+				C88334762215B42600BB61F5 /* Frameworks */,
+				C88334772215B42600BB61F5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MyFramework;
+			productName = MyFramework;
+			productReference = C88334792215B42600BB61F5 /* MyFramework.framework */;
+			productType = "com.apple.product-type.framework";
 		};
 /* End PBXNativeTarget section */
 
@@ -96,6 +209,10 @@
 				TargetAttributes = {
 					C805AFC422132D830052B366 = {
 						CreatedOnToolsVersion = 10.1;
+					};
+					C88334782215B42600BB61F5 = {
+						CreatedOnToolsVersion = 10.1;
+						LastSwiftMigration = 1010;
 					};
 				};
 			};
@@ -113,6 +230,7 @@
 			projectRoot = "";
 			targets = (
 				C805AFC422132D830052B366 /* FrameworkPrivateExample */,
+				C88334782215B42600BB61F5 /* MyFramework */,
 			);
 		};
 /* End PBXProject section */
@@ -128,6 +246,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C88334772215B42600BB61F5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -140,7 +265,25 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C88334752215B42600BB61F5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C883348D2215B45B00BB61F5 /* MyPrivateClass.m in Sources */,
+				C883348F2215B53D00BB61F5 /* ObjectiveCToSwift.swift in Sources */,
+				C88334892215B44600BB61F5 /* MyPublicClass.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		C883347F2215B42700BB61F5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C88334782215B42600BB61F5 /* MyFramework */;
+			targetProxy = C883347E2215B42700BB61F5 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		C805AFCC22132D830052B366 /* Main.storyboard */ = {
@@ -281,6 +424,7 @@
 		C805AFD822132D850052B366 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = YYAKJ5SR76;
@@ -299,6 +443,7 @@
 		C805AFD922132D850052B366 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = YYAKJ5SR76;
@@ -311,6 +456,65 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		C88334822215B42700BB61F5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = YYAKJ5SR76;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = MyFramework/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.girappe.MyFramework;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		C88334832215B42700BB61F5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = YYAKJ5SR76;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = MyFramework/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.girappe.MyFramework;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
 			};
 			name = Release;
 		};
@@ -331,6 +535,15 @@
 			buildConfigurations = (
 				C805AFD822132D850052B366 /* Debug */,
 				C805AFD922132D850052B366 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C88334842215B42700BB61F5 /* Build configuration list for PBXNativeTarget "MyFramework" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C88334822215B42700BB61F5 /* Debug */,
+				C88334832215B42700BB61F5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
