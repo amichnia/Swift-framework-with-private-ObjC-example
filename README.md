@@ -9,11 +9,11 @@ There are a lot of articles and tutorials about Swift/ObjC interoperability, but
 Let's assume you created a framework, named **MyFramework**, with following members:
 
 ```objc
-// MyVeryPrivateClass.h
+// MyPrivateClass.h
 
-@interface MyVeryPrivateClass: NSObject
+@interface MyPrivateClass: NSObject
 
-- (void) doSomethingPrivateWithSecretAttribute:(NSInteger) attribute;
+- (void) doSomethingInternalWithSecretAttribute:(NSInteger)attribute;
 
 @end
 ```
@@ -22,17 +22,17 @@ Let's assume you created a framework, named **MyFramework**, with following memb
 // MyPublicClass.swift
 
 public class MyPublicClass {
-    private let privateClass: MyVeryPrivateClass
+    private let privateClass: MyPrivateClass // We need private ObjC member
 
     ...
 
-    func doSomethingWithPrivateClass() {
-        privateClass.doSomethingPrivate(withSecretAttribute: 314)
+    public func doSomething() {
+        privateClass.doSomethingInternal(withSecretAttribute: 314)
     }
 }
 ```
 
-Our Swift class depends on Objective-C class, so it needs to know about it somehow. But still, we want this behaviour in the client app:
+Our Swift class depends on Objective-C class, so it needs to know about it somehow. But we don't want the client app to be able to see our ObjC internals:
 
 ```swift
 // Somewhere in the wild west
@@ -47,21 +47,19 @@ publicClass.doSomethingWithPrivateClass()
 ...
 
 // This should not be possible, nor even compile,
-// as it should not be able to see MyVeryPrivateClass
-let privateClass = MyVeryPrivateClass()
-privateClass.doSomethingImportant(withAttribute: 13)
+// as it should not be able to see MyPrivateClass !!!
+let privateClass = MyPrivateClass()
+privateClass.doSomethingInternal(withSecretAttribute: 13)
 ```
 
 Seems easy, right? Well, it is actually harder than it looks.
 
 > ### TL;DR
 > - we have a mixed Objective-C, C (or C++), Swift framework target
-> - we need to expose an Objective-C members to Swift code
-> - we don't want framework users, to see our ObjC members
+> - we need to expose an Objective-C members to Swift code internally
+> - we don't want framework users, to see our internal ObjC members
 
 # Solutions
-
-I have to say a had a problem to match what I tried within following categories. OK, I'm pretty sure about **the Ugly** one, but first two are just my arbitrary feelings about what seems to be easier and more in line with 'default' approach, which should not lead to any serious problems.
 
 ## The Good - yet not working
 
@@ -110,7 +108,7 @@ In quick words - you can manually define an explicit submodule with a private he
 import MyFramework.Private // Required to see "private" header
 
 public class MyPublicClass {
-    private let privateClass: MyVeryPrivateClass
+    private let privateClass: MyPrivateClass
     ...
 ```
 
@@ -124,9 +122,9 @@ import MyFramework.Private
 ...
 
 // This should not be possible, nor even compile,
-// as it should not be able to see MyVeryPrivateClass
-let privateClass = MyVeryPrivateClass()
-privateClass.doSomethingImportant(withAttribute: 13)
+// as it should not be able to see MyPrivateClass
+let privateClass = MyPrivateClass()
+privateClass.doSomethingInternal(withSecretAttribute: 13)
 ```
 
 **Framework users still can access "private" members**. It is a bit harder, since importing main module does not reveal "private" members immediately. And **it requires additional import statement to access "private" members**. As a framework creator you can emphasise that it is not safe nor intended to use it. But you cannot hide it.
@@ -138,15 +136,14 @@ To sum it up:
 + Allows to emphasise, that "private" submodule is for internal use only and it should not be used directly
 
 **Cons:**
-- All Objective-C members exposed to Swift are still public
-- It requires manual module maps, which are harder to setup
+- All Objective-C members exposed to Swift **are still public**
+- It requires manual module maps, which are harder to setup, and easier to misuse
 
 ## The Ugly - a solution that actually works
 
-In my case, the modulemaps were not enough. The research output wasn't promising. It seemed that **there is no way to expose Objcetive-C headers privately**, inside the same framework target only, without making them more or "less" public. **And it is true**.
+In my case, the modulemaps were not enough. The research output wasn't promising. It seemed that **there is no way to expose Objective-C headers privately**, inside the same framework target only, without making them more or "less" public. **And it is true**.
 
 You might wonder what I did have in mind then, when writing about finding **solution that works**. Let me share a part of a discussion I had with myself:
-
 
 > **Me:** *"Ok, let's think again, what do you actually want to achieve?"*
 >
@@ -179,55 +176,50 @@ You might wonder what I did have in mind then, when writing about finding **solu
 Let's update the framework a bit according to that idea. Swift code does not have to see the Objective-C part at all. But it can operate on anything adopting protocol matching our ObjC class features:
 
 ```swift
-// MyPublicClass.swift
+// ObjectiveCToSwift.swift
 
-@objc (MyVeryPrivateClassProtocol) // it will cross Swift -> ObjC boundary under this name
-internal protocol MyVeryPrivateClassProtocol {
-    // What we want to expose from ObjC
+@objc(MyPrivateClassProtocol) // Under this name this will cross Swift->ObjC boundary
+internal protocol MyPrivateClass {
     init()
-    func doSomethingPrivate(withSecretAttribute attribute: Int)
-}
-
-public class MyPublicClass {
-    // This refers to protocol, not ObjC class now
-    private let privateClass: MyVeryPrivateClassProtocol
-    ...
+    func doSomethingInternal(withSecretAttribute: Int)
 }
 ```
 
 ### Step 2: Expose internal Swift protocol
 
-Because `MyVeryPrivateClassProtocol` is internal, it would not be a part of `MyFramework-Swift.h` by default. So let's created additional header for making a link between all our internal Swift and ObjC members:
+Because `MyPrivateClassProtocol` is internal, it would not be a part of `MyFramework-Swift.h` by default. So let's created additional header for making a link between all our internal Swift and ObjC members:
 
 ```objc
-// SwiftToObjcetiveC_Internal.h
+// SwiftToObjectiveC.h
 
-#ifndef SwiftToObjcetiveC_Internal
-#define SwiftToObjcetiveC_Internal
+#ifndef SwiftToObjectiveC_h
+#define SwiftToObjectiveC_h
 
-SWIFT_PROTOCOL("MyVeryPrivateClassProtocol") // Matching one from @objc
-@protocol MyVeryPrivateClassProtocol
-- (instancetype)init;
-- (void) doSomethingPrivateWithSecretAttribute:(NSInteger) attribute;
+SWIFT_PROTOCOL_NAMED("MyPrivateClassProtocol")
+@protocol MyPrivateClassProtocol
+
+- (nonnull instancetype)init;
+- (void)doSomethingInternalWithSecretAttribute:(NSInteger)attribute;
+
 @end
 
-#endif /* SwiftToObjcetiveC_Internal */
+#endif /* SwiftToObjectiveC_h */
 ```
 
-> **Note:** If you are unsure how should you fill this header, you can make Swift members public, build, that will generate ModuleName-Swift.h header, and inspect it. It will give you some sense of how to do it. Then make it internal again.
+> **Note:** If you are unsure how should you fill this header, you can make Swift members public and build. That will generate ModuleName-Swift.h header in derived data. Inspect it and it will give you some sense of how to do it. Then make it internal again.
 
 ### Step 3: Adopt Swift protocol in ObjC
 
-Now as we are able to see Swift protocol in Objective-C as `MyVeryPrivateClassProtocol`, we can adopt it.
+Now as we are able to see Swift protocol in Objective-C as `MyPrivateClassProtocol`, we can adopt it.
 
 ```objc
-// MyVeryPrivateClass.h
-#import "SwiftToObjcetiveC_Internal.h"
+// MyPrivateClass.h
+#import <Foundation/Foundation.h>
+#import <SwiftToObjectiveC.h>
 
-@interface MyVeryPrivateClass: NSObject<MyVeryPrivateClassProtocol>
+@interface MyPrivateClass : NSObject<MyPrivateClassProtocol>
 
-- (instancetype)init;
-- (void) doSomethingPrivateWithSecretAttribute:(NSInteger) attribute;
+- (void) doSomethingInternalWithSecretAttribute:(NSInteger)attribute;
 
 @end
 ```
@@ -240,7 +232,7 @@ That leaves us with one last final problem.
 >
 > **Me:** *"Remember that factory pattern? Or a dependency injection containers you once wrote?"*
 
-The problem with the solution above is that we simply cannot instantiate a new instance of a Protocol without using the init on a concrete class. Ora can we? Let's consider this:
+The problem with the solution above is that we simply cannot instantiate a new instance of a Protocol without using the init on a concrete class. Or can we? Let's consider this:
 
 ```swift
 protocol SomeProtocol {
@@ -258,49 +250,56 @@ let instance: SomeProtocol = SomeProtocol.init()
 
 // Surprisingly, this also works
 var type: SomeProtocol.Type!                // Expose from Swift
-type = SomeClass.self                       // Move it to ObjC
+type = SomeClass.self                       // Move it to ObjC!
 let instance: SomeProtocol = type.init()    // Use in Swift
 ```
 
-Let's focus on last part. We can create a helper factory class:
+Let's focus on last part. We can create a helper factory class, that holds MyPrivateClass.Type:
 
 ```swift
 @objc(SwiftFactory)
 internal class Factory {
-    private static var privateClassType: MyVeryPrivateClassProtocol.self!
+    private static var privateClassType: MyPrivateClass.self! // Protocol
 
     // Expose registering class for protocol to ObjC
-    @objc static func registerMyVeryPrivateClass(type: MyVeryPrivateClassProtocol.self) {
+    @objc static func registerMyPrivateClass(type: MyPrivateClass.self) {
         privateClassType = type
     }
 
-    // Typical factory methods
-    func createMyVeryPrivateClass() -> MyVeryPrivateClassProtocol {
+    // Factory methods
+    func createMyPrivateClass() -> MyPrivateClass {
         return privateClassType.init()
     }
 }
 ```
 
-It would be exposed to Objective-C same way as we did for Protocol definition. The one last thing that needs to be done is to register Objective-C class to be used by factory. We need to do it before it could possibly be used.
+> **Note:** In Swift part, MyPrivateClass is a protocol, while in ObjC it is a class.
+
+Factory above would be exposed to Objective-C in the same way as the MyPrivateClass Protocol definition (so internally).
+
+The one last thing that needs to be done is to register Objective-C class to be used by factory. We need to do it before it could possibly be used.
 
 Luckily, Obj-C runtime has something just up to the job:
 
 ```objc
-// MyVeryPrivateClass.m
-#import "SwiftToObjcetiveC_Internal.h"
+// MyPrivateClass.m
+#import "MyPrivateClass.h"
 
-@@implementation MyVeryPrivateClass
+@implementation MyPrivateClass
+
+@synthesize privateProperty;
 
 + (void)load {
     // This is called once, when module is being loaded,
     // "Invoked whenever a class or category is added to the Objective-C
     // runtime; implement this method to perform class-specific behavior
     // upon loading."
-    [SwiftFactory registerMyVeryPrivateClassType:[MyVeryPrivateClass class]];
+    [Factory registerPrivateClassTypeWithType:[MyPrivateClass class]];
 }
 
-- (instancetype)init { ... }
-- (void) doSomethingPrivateWithSecretAttribute:(NSInteger) attribute { ... }
+- (void)doSomethingInternalWithSecretAttribute:(NSInteger)attribute {
+    NSLog(@"INTERNAL METHOD CALLED WITH SUCCESS %ld", (long)attribute);
+}
 
 @end
 ```
@@ -319,15 +318,12 @@ Let's sum it up:
 
 ## Summary
 
-The sample project is available here: ...
+The example project is available on the github: [https://github.com/amichnia/Swift-framework-with-private-ObjC-example](https://github.com/amichnia/Swift-framework-with-private-ObjC-example)
 
-> **Note:** In the example I used factory that allows you to register a type, and then I used init on that type. You can play with this approach a bit. If you don't like to add inits to protocols, you can try to use closure/block as a factory: `static `
->
->
+The whole approach requires some manual work and forces to slightly redesign how you initialize your dependencies. You need to generate protocols, manually bridge it to objc, and also maintain factory along the way. But this is the only way so far to have Objective-C members truly internally exposed to the Swift code.
+
+> **Note:** In the example I used factory that allows you to register a type, and then I used init on that type. You can play with this approach a bit. If you don't like to add inits to protocols, you can try to use closure/block as a factory: `static var createPrivateClass: (() -> MyPrivateClass)!`
 
 ### Thank you for reading
 
-Hope that will be useful. If you liked it, then 👏
-
-
-References:
+If you liked it, feel free to 👏
