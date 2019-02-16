@@ -1,10 +1,14 @@
-# Creating Swift framework with a private Objective-C members. The "Good", the "Bad", and the "Ugly".
+# Creating Swift framework with private Objective-C members. The Good, the Bad, and the Ugly.
 
-I was recently working on a closed source Swift framework. Unluckily, some parts of the code were in Objective-C (relying on pure C libraries). In this article I will highlight some of the problems when having frameworks with mixed Swift/ObjC code. I will show some approaches I tried when struggling to make ObjC code internal. Making it invisible to the framework users, but still accessible from Swift code gave me a serious headache. And I will share a solution that finally worked out in my case.
+![Cover by Timothy Anderson](./good-bad-ugly/cover-big.png)
+
+<p align="right"><small> Timothy Anderson Design: [www.timothyandersondesign.com](www.timothyandersondesign.com)</small></p>
+
+I was recently working on a closed source Swift framework. Unluckily, some parts of the code were in Objective-C (relying on pure C libraries). In this article, I highlight some of the problems when having frameworks with mixed Swift/ObjC code. I show some approaches I tried when struggling to make ObjC code internal. Making it invisible to the framework users, but still accessible from the Swift code gave me a severe headache. Also, I share a solution that finally worked out in my case.
 
 # The Problem
 
-There are a lot of articles and tutorials about Swift/ObjC interoperability, but they rarely focus on framework targets. It seems that even when you have everything in place, it is still close to impossible to effectively hide your Objective-C part from framework users (at least as long as you want to expose it to the Swift part). Or is it?
+There are a lot of articles and tutorials about Swift/ObjC interoperability, but they rarely focus on framework targets. It seems that even when you have everything in place, it is still close to impossible to effectively hide your Objective-C part from framework users (at least as long as you want to expose it to the Swift part).
 
 Let's assume you created a framework, named **MyFramework**, with following members:
 
@@ -32,7 +36,7 @@ public class MyPublicClass {
 }
 ```
 
-Our Swift class depends on Objective-C class, so it needs to know about it somehow. But we don't want the client app to be able to see our ObjC internals:
+Our Swift class depends on Objective-C class, so it needs to know about it somehow. However, we don't want the client app to be able to see our ObjC internals:
 
 ```swift
 // Somewhere in the wild west
@@ -56,22 +60,24 @@ Seems easy, right? Well, it is actually harder than it looks.
 
 > ### TL;DR
 > - we have a mixed Objective-C, C (or C++), Swift framework target
-> - we need to expose an Objective-C members to Swift code internally
+> - we need to expose Objective-C members to Swift code internally
 > - we don't want framework users, to see our internal ObjC members
 
 # Solutions
 
 ## The Good - yet not working
 
-By that I mean "default" Swift ObjC interoperability. Just for a short recap:
+![by Timothy Anderson](./good-bad-ugly/hedaer-good.png)
 
-- In order to expose **Swift to Objective-C**:
-  - target needs to define module
-  - Swift member should be marked as `@objc`
-  - Swift member should inherit from NSObject
-- In order to expose **Objective-C to Swift**:
-  - place ObjC imports in bridging header file (if available)
-  - place ObjC imports in umbrella header (for frameworks)
+By that, I mean "default" Swift ObjC interoperability. Just for a short recap:
+
+- To expose **Swift to Objective-C**:
+    - target needs to define a module
+    - Mark Swift members as @objc
+    - Make Swift members inherit from NSObject
+- To expose **Objective-C to Swift**:
+    - place ObjC imports in bridging header file (if available)
+    - place ObjC imports in umbrella header (for frameworks)
 
 You can read more about it here:
 
@@ -83,10 +89,10 @@ There is one significant problem with this approach:
 
 > "Swift sees every header you expose **publicly** in your umbrella header. The contents of the Objective-C files in that framework are automatically available from any Swift file within that framework target, with no import statements."
 
-So it **does not provide desired behaviour**. Moreover, I noticed that quite often it leads to a chain of "including non-modular header" issues. That literally makes you rewrite half of the headers. It is still doable, as long as you don't import any header that is out of your control, for example headers from some static library. Summing up:
+So it **does not provide the desired behavior**. Moreover, I noticed that quite often it leads to a chain of "including non-modular header" issues. That literally makes you rewrite half of the headers. It is still doable, as long as you don't import any header that is out of your control, for example, headers from some static library. Summing up:
 
 **Pros:**
-+ Its intended way to do Swift ObjC interoperability
++ Its intended way to do ObjC -> Swift interoperability
 
 **Cons:**
 - All Objective-C members exposed to Swift are also publicly visible
@@ -94,14 +100,16 @@ So it **does not provide desired behaviour**. Moreover, I noticed that quite oft
 
 ## The Bad - a private module maps that almost work
 
-When searching for a possible solution, this is one of the most popular. It relies on creating **private modulemap** file, that will define **explicit submodule**. I don't want to get too much into details how to do it, here are some useful links:
+![by Timothy Anderson](./good-bad-ugly/hedaer-bad.png)
+
+When searching for a possible solution, this is one of the most popular. It relies on creating a **private modulemap** file, that defines **explicit submodule**. I don't want to get too much into details on how to do it, here are some useful links:
 
 - [stackoverflow: How to import private framework headers in a Swift framework?](https://stackoverflow.com/questions/28746214/how-to-import-private-framework-headers-in-a-swift-framework)
 - [https://code.i-harness.com/en/q/21e3c64](https://code.i-harness.com/en/q/21e3c64)
 - [Realm Academy](https://academy.realm.io/posts/marius-rackwitz-challenges-building-swift-framework/)
 - [Omar Abdelhafith blog](http://nsomar.com/project-and-private-headers-in-a-swift-and-objective-c-framework/)
 
-In quick words - you can manually define an explicit submodule with a private header files, named for example **MyFramework.Private**. Then you access it from your Swift code as following:
+In quick words - you can manually define an explicit submodule with private header files, named for example **MyFramework.Private**. Then you access it from your Swift code as following:
 
 ```swift
 // MyPublicClass.swift
@@ -112,7 +120,7 @@ public class MyPublicClass {
     ...
 ```
 
-**It is not really private though** as it would work also for the framework user:
+**It is not very private though** as it would also work for the framework user:
 
 ```swift
 // Somewhere in the wild west
@@ -127,25 +135,27 @@ let privateClass = MyPrivateClass()
 privateClass.doSomethingInternal(withSecretAttribute: 13)
 ```
 
-**Framework users still can access "private" members**. It is a bit harder, since importing main module does not reveal "private" members immediately. And **it requires additional import statement to access "private" members**. As a framework creator you can emphasise that it is not safe nor intended to use it. But you cannot hide it.
+**Framework users still can access "private" members**. It is a bit harder, since importing the main module does not reveal "private" members immediately. It also requires an additional import statement to access "private" members. You can emphasize that it is not safe nor intended to use it. However, you cannot hide it.
 
 To sum it up:
 
 **Pros:**
-+ It gives some kind of control over what is visible to the user by default
-+ Allows to emphasise, that "private" submodule is for internal use only and it should not be used directly
++ It gives some control over what is visible to the user by default
++ Allows to emphasize, that "private" submodule is for internal use only and it should not be used directly
 
 **Cons:**
 - All Objective-C members exposed to Swift **are still public**
-- It requires manual module maps, which are harder to setup, and easier to misuse
+- It requires manual module maps, which are harder to set up, and easier to misuse
 
-## The Ugly - a solution that actually works
+## The Ugly - a solution that works
 
-In my case, the modulemaps were not enough. The research output wasn't promising. It seemed that **there is no way to expose Objective-C headers privately**, inside the same framework target only, without making them more or "less" public. **And it is true**.
+![by Timothy Anderson](./good-bad-ugly/hedaer-ugly.png)
 
-You might wonder what I did have in mind then, when writing about finding **solution that works**. Let me share a part of a discussion I had with myself:
+In my case, the modulemaps were not enough. The research output wasn't promising. It seemed that **there is no way to expose Objective-C headers privately**, inside the same framework target only, without making them more or "less" public. So it is true so far.
 
-> **Me:** *"Ok, let's think again, what do you actually want to achieve?"*
+You might wonder what I did have in mind then when writing about finding a **solution that works**. Let me share a part of a discussion I had with myself:
+
+> **Me:** *"Ok, let's think again, what do you want to achieve?"*
 >
 > **Me2:** *"I want to expose Objective-C headers to Swift, but only inside the framework target, without exposing them to the framework users."*
 >
@@ -157,13 +167,13 @@ You might wonder what I did have in mind then, when writing about finding **solu
 >
 > **Me2:** *"Call some methods, access variables?"*
 >
-> **Me:** *"Do you need to know the 'class' to do that?"*
+> **Me:** *"Do you need to 'know the class' to do that?"*
 >
 > **Me2:** *"Well, I only need to know that there is a method or a variable, so protocol should be fine."*
 >
-> **Me:** *"And if you invert the problem? Can you have an internal Swift member and use it from Objective-C"*
+> **Me:** *"And if you invert the problem? Can you have an internal Swift member and use it from Objective-C."*
 >
-> **Me2:** *"It seems that the answer is yes, with some restrictions of course"*
+> **Me2:** *"It seems that the answer is yes, with some restrictions of course."*
 >
 > **Me:** *"OK. Can you make then the private Objective-C member adopt an internal Swift protocol?"*
 >
@@ -171,9 +181,9 @@ You might wonder what I did have in mind then, when writing about finding **solu
 >
 > **Me:** *"Well, let's try."*
 
-### Step 1: Create Swift protocol matching ObjC member
+### Step 1: Create a Swift protocol matching ObjC member
 
-Let's update the framework a bit according to that idea. Swift code does not have to see the Objective-C part at all. But it can operate on anything adopting protocol matching our ObjC class features:
+Let's update the framework a bit according to that idea. The swift code does not have to see the Objective-C part at all. However, it can operate on anything adopting protocol matching our ObjC class features:
 
 ```swift
 // ObjectiveCToSwift.swift
@@ -187,7 +197,8 @@ internal protocol MyPrivateClass {
 
 ### Step 2: Expose internal Swift protocol
 
-Because `MyPrivateClassProtocol` is internal, it would not be a part of `MyFramework-Swift.h` by default. So let's created additional header for making a link between all our internal Swift and ObjC members:
+Because `MyPrivateClassProtocol` is internal, it would not be a part of `MyFramework-Swift.h` by default. So let's created an additional header for linking all our internal Swift and ObjC members:
+
 
 ```objc
 // SwiftToObjectiveC.h
@@ -206,11 +217,11 @@ SWIFT_PROTOCOL_NAMED("MyPrivateClassProtocol")
 #endif /* SwiftToObjectiveC_h */
 ```
 
-> **Note:** If you are unsure how should you fill this header, you can make Swift members public and build. That will generate ModuleName-Swift.h header in derived data. Inspect it and it will give you some sense of how to do it. Then make it internal again.
+> **Note:** If you are unsure how should you fill this header, you can make Swift members public and build. That generates 'ModuleName-Swift.h' header in derived data. Inspecting it should give you some sense of how to do it. Then make it internal again.
 
 ### Step 3: Adopt Swift protocol in ObjC
 
-Now as we are able to see Swift protocol in Objective-C as `MyPrivateClassProtocol`, we can adopt it.
+Now as we can see Swift protocol in Objective-C as `MyPrivateClassProtocol`, we can adopt it.
 
 ```objc
 // MyPrivateClass.h
@@ -224,15 +235,15 @@ Now as we are able to see Swift protocol in Objective-C as `MyPrivateClassProtoc
 @end
 ```
 
-That leaves us with one last final problem.
+That leaves us with one last final problem..
 
 ### Step 4: How to create instances
 
 > **Me2:** *"OK, I theoretically can use it. But again, how do I get an instance of it if I don't know about a class adopting protocol?"*
 >
-> **Me:** *"Remember that factory pattern? Or a dependency injection containers you once wrote?"*
+> **Me:** *"Remember that factory pattern?"*
 
-The problem with the solution above is that we simply cannot instantiate a new instance of a Protocol without using the init on a concrete class. Or can we? Let's consider this:
+The problem with the solution above is that we just cannot instantiate a new instance of a Protocol without using the `init` on a concrete class, can we? Let's consider this:
 
 ```swift
 protocol SomeProtocol {
@@ -254,10 +265,10 @@ type = SomeClass.self                       // Move it to ObjC!
 let instance: SomeProtocol = type.init()    // Use in Swift
 ```
 
-Let's focus on last part. We can create a helper factory class, that holds MyPrivateClass.Type:
+Let's focus on the last part. We can create a helper factory class, that holds `MyPrivateClass.Type`:
 
 ```swift
-@objc(SwiftFactory)
+@objc(Factory)
 internal class Factory {
     private static var privateClassType: MyPrivateClass.self! // Protocol
 
@@ -273,11 +284,11 @@ internal class Factory {
 }
 ```
 
-> **Note:** In Swift part, MyPrivateClass is a protocol, while in ObjC it is a class.
+> **Note:** In Swift part, MyPrivateClass is a protocol, while in ObjC it is a class. It might seem ambiguous, but I wanted to keep same names on both sides.
 
-Factory above would be exposed to Objective-C in the same way as the MyPrivateClass Protocol definition (so internally).
+Factory above would be exposed to Objective-C in the same way as the `MyPrivateClass` Protocol definition (so internally).
 
-The one last thing that needs to be done is to register Objective-C class to be used by factory. We need to do it before it could possibly be used.
+The one last thing that needs to be done is to register the Objective-C class to be used by the factory. We need to do it before we could use it.
 
 Luckily, Obj-C runtime has something just up to the job:
 
@@ -304,13 +315,13 @@ Luckily, Obj-C runtime has something just up to the job:
 @end
 ```
 
-So it seems, that **we are able to use Objective-C members in Swift without exposing ObjC code to Swift at all!** All we need to do is to expose Swift part to Objective-C, which we can do internally 😎.
+So it seems, that **we can use Objective-C members in Swift without exposing ObjC code to Swift at all!** All we need to do is to expose the Swift part to Objective-C, which we can do internally 😎.
 
 Let's sum it up:
 
 **Pros:**
 + **It effectively hides Objective-C members** from framework users
-+ you are forced to interface stuff. This is usually a good thing, increasing overall testability
++ You are forced to interface stuff. It is usually a good thing, increasing overall testability
 
 **Cons:**
 + You need some additional members to cross Swift-ObjC boundary
@@ -318,12 +329,14 @@ Let's sum it up:
 
 ## Summary
 
-The example project is available on the github: [https://github.com/amichnia/Swift-framework-with-private-ObjC-example](https://github.com/amichnia/Swift-framework-with-private-ObjC-example)
+The example project is available on the GitHub: [https://github.com/amichnia/Swift-framework-with-private-ObjC-example](https://github.com/amichnia/Swift-framework-with-private-ObjC-example)
 
-The whole approach requires some manual work and forces to slightly redesign how you initialize your dependencies. You need to generate protocols, manually bridge it to objc, and also maintain factory along the way. But this is the only way so far to have Objective-C members truly internally exposed to the Swift code.
+The whole approach requires some manual work and forces to redesign how you initialize your dependencies slightly. You need to generate protocols, manually bridge it to ObjC, and also maintain factory along the way. However, this is the only way so far have genuinely internal Objective-C implementation and use it in the Swift code.
 
-> **Note:** In the example I used factory that allows you to register a type, and then I used init on that type. You can play with this approach a bit. If you don't like to add inits to protocols, you can try to use closure/block as a factory: `static var createPrivateClass: (() -> MyPrivateClass)!`
+> **Note:** In the example, I used the factory that allows you to register a type, and then I used init on that type. You can play with this approach a bit. If you don't like to add inits to protocols, you can try to use closure/block as a factory: `static var createPrivateClass: (() -> MyPrivateClass)!`
 
 ### Thank you for reading
 
 If you liked it, feel free to 👏
+
+Special thanks to [Timothy Anderson](www.timothyandersondesign.com), for allowing me to use his illustrations in this article.
